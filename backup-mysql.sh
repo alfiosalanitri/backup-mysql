@@ -1,7 +1,7 @@
 #! /bin/bash
 #
 # NAME
-# 	backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
+# 	backup-mysql.sh - Export all database in singular database_name.sql.gz file and archive all in a tar.xz archive.
 #
 # SYNOPSIS
 #	./backup-mysql.sh username password
