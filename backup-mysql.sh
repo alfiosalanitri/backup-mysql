@@ -1,24 +1,24 @@
 #! /bin/bash
 #
 # NAME
-# 	backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
+# backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
 #
 # SYNOPSIS
 #	./backup-mysql.sh username password
 #
 # DESCRIPTION
 #	this script dump all databases into singular database.sql.gz file and create an archive .tar.xz into current script directory.
-#   NOTE: pass the database password to this script isn't safety. Create a database user with this privileges: SHOW DATABASES, SELECT, LOCK TABLES, RELOAD, SHOW VIEW and use it.
+# NOTE: pass the database password to this script isn't safety. Create a database user with this privileges: SHOW DATABASES, SELECT, LOCK TABLES, RELOAD, SHOW VIEW and use it.
 #
 # INSTALLATION
 #	sudo chmod +x backup-mysql.sh
-#	
-# AUTHOR: 
+#
+# AUTHOR:
 #	backup-mysql.sh is written by Alfio Salanitri <www.alfiosalanitri.it> and are licensed under the terms of the GNU General Public License, version 2 or higher.
-# 
-# 
+#
+#
 #############################################################
-# Icons	and color	
+# Icons	and color
 # https://www.techpaste.com/2012/11/print-colored-text-background-shell-script-linux/
 # https://apps.timwhitlock.info/emoji/tables/unicode
 #############################################################
@@ -37,38 +37,38 @@ TIMESTAMP=$(date +"%d%m%Y-%H%M")
 CURRENT_DIR=$(pwd)
 BACKUP_DIR="/tmp/backup-mysql"
 if [ ! "$1" ]; then
-    printf "[${red}${icon_ko}${nocolor}] Type the database user\n"
-    exit 1
+  printf "[${red}${icon_ko}${nocolor}] Type the database user\n"
+  exit 1
 fi
 if [ ! "$2" ]; then
-    printf "[${red}${icon_ko}${nocolor}] Type the database password\n"
-    exit 1
+  printf "[${red}${icon_ko}${nocolor}] Type the database password\n"
+  exit 1
 fi
 MYSQL_USER=$1
 MYSQL_PASSWORD=$2
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
 # Check packages
-if ! command -v $MYSQL &> /dev/null; then
-	printf "${red}${icon_ko}${nocolor} Sorry, but ${green}mysql${nocolor} is required.\n"
-	exit 1
+if ! command -v $MYSQL &>/dev/null; then
+  printf "${red}${icon_ko}${nocolor} Sorry, but ${green}mysql${nocolor} is required.\n"
+  exit 1
 fi
-if ! command -v $MYSQLDUMP &> /dev/null; then
-	printf "${red}${icon_ko}${nocolor} Sorry, but ${green}mysqldump${nocolor} is required.\n"
-	exit 1
+if ! command -v $MYSQLDUMP &>/dev/null; then
+  printf "${red}${icon_ko}${nocolor} Sorry, but ${green}mysqldump${nocolor} is required.\n"
+  exit 1
 fi
 
 # create the backup tmp dir
 mkdir -p $BACKUP_DIR
 
 printf "[${yellow}${icon_wait}${nocolor}] Reading all databases...\n\n"
-databases=`$MYSQL --user=$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)"`
- 
+databases=$($MYSQL --user=$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
+
 for db in $databases; do
-	printf "[${yellow}${icon_wait}${nocolor}] Saving database: ${green}${db}${nocolor}...\n"
-	$MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip > "$BACKUP_DIR/$db.sql.gz"
-	printf "[${green}${icon_ok}${nocolor}] Database: ${green}${db}${nocolor} saved!\n"
-	echo "--------------------------"
+  printf "[${yellow}${icon_wait}${nocolor}] Saving database: ${green}${db}${nocolor}...\n"
+  $MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip >"$BACKUP_DIR/$db.sql.gz"
+  printf "[${green}${icon_ok}${nocolor}] Database: ${green}${db}${nocolor} saved!\n"
+  echo "--------------------------"
 done
 
 printf "\n[${yellow}${icon_wait}${nocolor}] Compressing directory...\n"
