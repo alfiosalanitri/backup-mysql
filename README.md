@@ -1,8 +1,8 @@
 # NAME
-backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
+backup-mysql.sh - Export all database in singular database_name.sql.gz file and archive all in a tar.xz archive.
 
 # DESCRIPTION
-this script dump all databases into singular database.sql.gz file and create an archive .tar.xz into current script directory.
+this script dump all databases into singular database_name.sql.gz file and create an archive .tar.xz into current script directory.
 NOTE: pass the database password to this script isn't safety. Create a database user with this privileges: SHOW DATABASES, SELECT, LOCK TABLES, RELOAD, SHOW VIEW and use it.
 	
 
