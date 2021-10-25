@@ -4,17 +4,19 @@
 # backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
 #
 # SYNOPSIS
-#	./backup-mysql.sh username password
+#	./backup-mysql.sh /path/to/.backup-mysql
 #
 # DESCRIPTION
 #	this script dump all databases into singular database.sql.gz file and create an archive .tar.xz into current script directory.
-# NOTE: pass the database password to this script isn't safety. Create a database user with this privileges: SHOW DATABASES, SELECT, LOCK TABLES, RELOAD, SHOW VIEW and use it.
 #
 # INSTALLATION
-#	sudo chmod +x backup-mysql.sh
+# - sudo chown root: /path/to/backup-mysql.sh
+# - sudo chown root: /path/to/.backup-mysql-config
+# - sudo chmod 600 /path/to/.backup-mysql-config
+#	- sudo chmod +x /path/to/backup-mysql.sh
 #
 # AUTHOR:
-#	backup-mysql.sh is written by Alfio Salanitri <www.alfiosalanitri.it> and are licensed under the terms of the GNU General Public License, version 2 or higher.
+#	backup-mysql.sh is written by Alfio Salanitri <www.alfiosalanitri.it> and are licensed under the MIT License.
 #
 #
 #############################################################
@@ -33,21 +35,25 @@ icon_wait='\xE2\x8C\x9B'
 #############################################################
 # VARIABLES
 #############################################################
+if [ ! -f "$1" ]; then
+  printf "Sorry but the config file is required. \n"
+  exit 1
+fi
 TIMESTAMP=$(date +"%d%m%Y-%H%M")
 CURRENT_DIR=$(pwd)
 BACKUP_DIR="/tmp/backup-mysql"
-if [ ! "$1" ]; then
-  printf "[${red}${icon_ko}${nocolor}] Type the database user\n"
-  exit 1
-fi
-if [ ! "$2" ]; then
-  printf "[${red}${icon_ko}${nocolor}] Type the database password\n"
-  exit 1
-fi
-MYSQL_USER=$1
-MYSQL_PASSWORD=$2
+MYSQL_USER=$(awk -F'=' '/^DATABASE_NAME=/ { print $2}' $1)
+MYSQL_PASSWORD=$(awk -F'=' '/^DATABASE_PASSWORD=/ { print $2}' $1)
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
+if [ "" == "$MYSQL_USER" ]; then
+  printf "[${red}${icon_ko}${nocolor}] Save the database user into config file\n"
+  exit 1
+fi
+if [ "" == "$MYSQL_PASSWORD" ]; then
+  printf "[${red}${icon_ko}${nocolor}] Save the database password into config file\n"
+  exit 1
+fi
 # Check packages
 if ! command -v $MYSQL &>/dev/null; then
   printf "${red}${icon_ko}${nocolor} Sorry, but ${green}mysql${nocolor} is required.\n"
