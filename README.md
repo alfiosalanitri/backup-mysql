@@ -12,6 +12,9 @@ this script dump all databases into singular database.sql.gz file and create an 
 
 # USAGE
 `./backup-mysql.sh /path/to/.backup-mysql`
+
+# HOW TO restore a single database?
+`zcat database.sql.gz | mysql -u username -p database_name`
        
 # AUTHOR: 
 backup-mysql.sh is written by Alfio Salanitri www.alfiosalanitri.it and are licensed under the MIT License.
