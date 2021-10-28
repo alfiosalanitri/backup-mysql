@@ -13,7 +13,7 @@ this script dump all databases into singular database.sql.gz file and create an 
 # USAGE
 `./backup-mysql.sh /path/to/.backup-mysql`
 
-# HOW TO restore a single database?
+# HOW TO restore a singular database?
 `zcat database.sql.gz | mysql -u username -p database_name`
        
 # AUTHOR: 
