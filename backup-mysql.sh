@@ -4,7 +4,7 @@
 # backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
 #
 # SYNOPSIS
-#	./backup-mysql.sh /path/to/.config
+#	./backup-mysql.sh /path/to/.config /path/to/backup/destination
 #
 # DESCRIPTION
 #	this script dump all databases into singular database.sql.gz file and create an archive .tar.xz into current script directory.
@@ -41,11 +41,15 @@ if [ ! -f "$1" ]; then
   printf "Sorry but the config file is required. \n"
   exit 1
 fi
+if [ ! -d "$2" ]; then
+  printf "Sorry but the backup destination directory is required. \n"
+  exit 1
+fi
 TIMESTAMP=$(date +"%d%m%Y-%H%M")
-BACKUP_DESTINATION=$(awk -F'=' '/^BACKUP_DESTINATION=/ { print $2}' $1)
 BACKUP_TMP_DIR="/tmp/backup-mysql"
 MYSQL_USER=$(awk -F'=' '/^DATABASE_NAME=/ { print $2}' $1)
 MYSQL_PASSWORD=$(awk -F'=' '/^DATABASE_PASSWORD=/ { print $2}' $1)
+BACKUP_DESTINATION=${2%/}
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
 if [ "" == "$MYSQL_USER" ]; then
@@ -54,10 +58,6 @@ if [ "" == "$MYSQL_USER" ]; then
 fi
 if [ "" == "$MYSQL_PASSWORD" ]; then
   printf "[${red}${icon_ko}${nocolor}] Save the database password into config file\n"
-  exit 1
-fi
-if [ "" == "$BACKUP_DESTINATION" ]; then
-  printf "[${red}${icon_ko}${nocolor}] Save the backup destination directory into config file\n"
   exit 1
 fi
 # Check packages
