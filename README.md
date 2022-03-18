@@ -13,7 +13,7 @@ this script dump all databases into singular database.sql.gz file and create an 
 - `sudo chmod +x /path/to/backup-mysql.sh`
 
 # USAGE
-`./backup-mysql.sh /path/to/.config`
+`./backup-mysql.sh /path/to/.config /path/to/backup/destination`
 
 # HOW TO restore a singular database?
 `zcat database.sql.gz | mysql -u username -p database_name`
