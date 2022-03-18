@@ -4,15 +4,17 @@
 # backup-mysql.sh - create a tar archive with databases stored in .sql.gz separated file.
 #
 # SYNOPSIS
-#	./backup-mysql.sh /path/to/.backup-mysql
+#	./backup-mysql.sh /path/to/.config
 #
 # DESCRIPTION
 #	this script dump all databases into singular database.sql.gz file and create an archive .tar.xz into current script directory.
 #
 # INSTALLATION
-# - sudo chown root: /path/to/backup-mysql.sh
-# - sudo chown root: /path/to/.backup-mysql-config
-# - sudo chmod 600 /path/to/.backup-mysql-config
+# - rename .config.example to .config
+# - edit .config file with your data
+# - sudo chown root:root /path/to/backup-mysql.sh
+# - sudo chown root:root /path/to/.config
+# - sudo chmod 600 /path/to/.config
 #	- sudo chmod +x /path/to/backup-mysql.sh
 #
 # AUTHOR:
@@ -40,8 +42,8 @@ if [ ! -f "$1" ]; then
   exit 1
 fi
 TIMESTAMP=$(date +"%d%m%Y-%H%M")
-CURRENT_DIR=$(pwd)
-BACKUP_DIR="/tmp/backup-mysql"
+BACKUP_DESTINATION=$(awk -F'=' '/^BACKUP_DESTINATION=/ { print $2}' $1)
+BACKUP_TMP_DIR="/tmp/backup-mysql"
 MYSQL_USER=$(awk -F'=' '/^DATABASE_NAME=/ { print $2}' $1)
 MYSQL_PASSWORD=$(awk -F'=' '/^DATABASE_PASSWORD=/ { print $2}' $1)
 MYSQL=/usr/bin/mysql
@@ -52,6 +54,10 @@ if [ "" == "$MYSQL_USER" ]; then
 fi
 if [ "" == "$MYSQL_PASSWORD" ]; then
   printf "[${red}${icon_ko}${nocolor}] Save the database password into config file\n"
+  exit 1
+fi
+if [ "" == "$BACKUP_DESTINATION" ]; then
+  printf "[${red}${icon_ko}${nocolor}] Save the backup destination directory into config file\n"
   exit 1
 fi
 # Check packages
@@ -67,23 +73,23 @@ fi
 SECONDS=0
 
 # create the backup tmp dir
-mkdir -p $BACKUP_DIR
+mkdir -p $BACKUP_TMP_DIR
 
 printf "[${yellow}${icon_wait}${nocolor}] Reading all databases...\n\n"
 databases=$($MYSQL --user=$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
 
 for db in $databases; do
   printf "[${yellow}${icon_wait}${nocolor}] Saving database: ${green}${db}${nocolor}...\n"
-  $MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip >"$BACKUP_DIR/$db.sql.gz"
-  db_size=$(stat -c %s "$BACKUP_DIR/$db.sql.gz" | numfmt --to=iec)
+  $MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --databases $db | gzip >"$BACKUP_TMP_DIR/$db.sql.gz"
+  db_size=$(stat -c %s "$BACKUP_TMP_DIR/$db.sql.gz" | numfmt --to=iec)
   printf "[${green}${icon_ok}${nocolor}] Database: ${green}${db} ($db_size)${nocolor} saved!\n"
   echo "--------------------------"
 done
 
 printf "\n[${yellow}${icon_wait}${nocolor}] Compressing directory...\n"
-tar cJfP $CURRENT_DIR/mysqldump-databases-$TIMESTAMP.tar.xz $BACKUP_DIR
-printf "[${green}${icon_ok}${nocolor}] Archive stored into current directory.\n"
-rm -r $BACKUP_DIR
+tar cJfP $BACKUP_DESTINATION/mysqldump-databases-$TIMESTAMP.tar.xz $BACKUP_TMP_DIR
+printf "[${green}${icon_ok}${nocolor}] Archive stored to $BACKUP_DESTINATION directory.\n"
+rm -r $BACKUP_TMP_DIR
 printf "[${green}${icon_ok}${nocolor}] Temporary directory deleted.\n\n"
 duration=$SECONDS
 printf "Backup date: $(date)\n"
