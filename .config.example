@@ -1,3 +1,2 @@
 DATABASE_USER=your-user
 DATABASE_PASSWORD=your-password
-BACKUP_DESTINATION=/path/to/
