@@ -5,13 +5,15 @@ backup-mysql.sh - create a tar archive with databases stored in .sql.gz separate
 this script dump all databases into singular database.sql.gz file and create an archive .tar.xz into current script directory.
 
 # INSTALLATION
-- `sudo chown root: /path/to/backup-mysql.sh`
-- `sudo chown root: /path/to/.backup-mysql-config`
-- `sudo chmod 600 /path/to/.backup-mysql-config`
+- rename .config.example to .config
+- edit .config file with your data
+- `sudo chown root:root /path/to/backup-mysql.sh`
+- `sudo chown root:root /path/to/.config`
+- `sudo chmod 600 /path/to/.config`
 - `sudo chmod +x /path/to/backup-mysql.sh`
 
 # USAGE
-`./backup-mysql.sh /path/to/.backup-mysql`
+`./backup-mysql.sh /path/to/.config`
 
 # HOW TO restore a singular database?
 `zcat database.sql.gz | mysql -u username -p database_name`
