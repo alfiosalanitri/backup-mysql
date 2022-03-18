@@ -47,7 +47,7 @@ if [ ! -d "$2" ]; then
 fi
 TIMESTAMP=$(date +"%d%m%Y-%H%M")
 BACKUP_TMP_DIR="/tmp/backup-mysql"
-MYSQL_USER=$(awk -F'=' '/^DATABASE_NAME=/ { print $2}' $1)
+MYSQL_USER=$(awk -F'=' '/^DATABASE_USER=/ { print $2}' $1)
 MYSQL_PASSWORD=$(awk -F'=' '/^DATABASE_PASSWORD=/ { print $2}' $1)
 BACKUP_DESTINATION=${2%/}
 MYSQL=/usr/bin/mysql
