@@ -94,4 +94,4 @@ printf "[${green}${icon_ok}${nocolor}] Temporary directory deleted.\n\n"
 duration=$SECONDS
 printf "Backup date: $(date)\n"
 printf "Backup time elapsed: $(($duration / 60)) minutes and $(($duration % 60)) seconds.\n"
-exit 1
+exit 0
