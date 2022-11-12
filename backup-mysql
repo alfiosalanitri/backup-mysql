@@ -49,6 +49,7 @@ TIMESTAMP=$(date +"%d%m%Y-%H%M")
 BACKUP_TMP_DIR="/tmp/backup-mysql"
 MYSQL_USER=$(awk -F'=' '/^DATABASE_USER=/ { print $2}' $1)
 MYSQL_PASSWORD=$(awk -F'=' '/^DATABASE_PASSWORD=/ { print $2}' $1)
+EXCLUDED_DATABASES=$(awk -F'=' '/^EXCLUDED_DATABASES=/ { print $2}' $1)
 BACKUP_DESTINATION=${2%/}
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
@@ -76,7 +77,7 @@ START_TIME=$(date +%s)
 mkdir -p $BACKUP_TMP_DIR
 
 printf "[${YELLOW}${ICON_WAIT}${NOCOLOR}] Reading all databases...\n\n"
-DATABASES=$($MYSQL --user=$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
+DATABASES=$($MYSQL --user=$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;" | grep -Ev "($EXCLUDED_DATABASES)")
 
 for DB in $DATABASES; do
   printf "[${YELLOW}${ICON_WAIT}${NOCOLOR}] Saving database: ${GREEN}${DB}${NOCOLOR}...\n"
