@@ -50,7 +50,9 @@ BACKUP_TMP_DIR="/tmp/backup-mysql"
 MYSQL_USER=$(awk -F'=' '/^DATABASE_USER=/ { print $2}' $1)
 MYSQL_PASSWORD=$(awk -F'=' '/^DATABASE_PASSWORD=/ { print $2}' $1)
 EXCLUDED_DATABASES=$(awk -F'=' '/^EXCLUDED_DATABASES=/ { print $2}' $1)
+DELETION_DAYS_NUMBER=$(awk -F'=' '/^DELETE_BACKUPS_OLDER_THAN_DAYS=/ { print $2}' $1)
 BACKUP_DESTINATION=${2%/}
+BACKUP_FILENAME_PREFIX="mysqldump-databases"
 MYSQL=/usr/bin/mysql
 MYSQLDUMP=/usr/bin/mysqldump
 if [ "" == "$MYSQL_USER" ]; then
@@ -88,11 +90,17 @@ for DB in $DATABASES; do
 done
 
 printf "\n[${YELLOW}${ICON_WAIT}${NOCOLOR}] Compressing directory...\n"
-tar cJfP $BACKUP_DESTINATION/mysqldump-databases-$TIMESTAMP.tar.xz $BACKUP_TMP_DIR
+tar cJfP $BACKUP_DESTINATION/$BACKUP_FILENAME_PREFIX-$TIMESTAMP.tar.xz $BACKUP_TMP_DIR
 printf "[${GREEN}${ICON_OK}${NOCOLOR}] Archive stored into $BACKUP_DESTINATION directory.\n"
 rm -r $BACKUP_TMP_DIR
 printf "[${GREEN}${ICON_OK}${NOCOLOR}] Temporary directory deleted.\n\n"
 
+#delete files older then days number
+if [ $DELETION_DAYS_NUMBER -gt 0 ]; then
+  printf "[${YELLOW}${ICON_WAIT}${NOCOLOR}] Deleting backup files older then $DELETION_DAYS_NUMBER day/s...\n"
+  find $BACKUP_DESTINATION -mtime +$DELETION_DAYS_NUMBER -type f -name "$BACKUP_FILENAME_PREFIX*" -delete
+  printf "[${GREEN}${ICON_OK}${NOCOLOR}] Old backup files deleted with success.\n\n"
+fi
 END_TIME=$(date +%s)
 ELAPSED=$(( end_time - start_time ))
 printf "Backup date: $(date)\n"

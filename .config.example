@@ -1,3 +1,4 @@
 DATABASE_USER=your-user
 DATABASE_PASSWORD=your-password
+DELETE_BACKUPS_OLDER_THAN_DAYS=30
 EXCLUDED_DATABASES=Database|information_schema|performance_schema|mysql
